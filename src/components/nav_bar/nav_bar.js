@@ -1,96 +1,220 @@
-// Created by Duane Lausell on 2019/04/14
+import React from 'react';
+import {
+  Avatar,
+  Brand,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  ButtonVariant,
+  Dropdown,
+  Card,
+  CardBody,
+  DropdownToggle,
+  DropdownItem,
+  DropdownSeparator,
+  Gallery,
+  GalleryItem,
+  KebabToggle,
+  Nav,
+  NavItem,
+  NavList,
+  Page,
+  PageHeader,
+  PageSection,
+  PageSectionVariants,
+  PageSidebar,
+  SkipToContent,
+  TextContent,
+  Text,
+  Toolbar,
+  ToolbarGroup,
+  ToolbarItem
+} from '@patternfly/react-core';
+import '@patternfly/react-core/dist/styles/base.css'
+// make sure you've installed @patternfly/patternfly
+import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
+import spacingStyles from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import { css } from '@patternfly/react-styles';
+import { BellIcon, CogIcon } from '@patternfly/react-icons';
+//import imgBrand from './imgBrand.svg';
+//import imgAvatar from './imgAvatar.svg';
 
-import React, {Component} from 'react';
-
-import {Link, Route, HashRouter} from 'react-router-dom';
-
-import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink} from 'reactstrap';
-
-export default class NavBar extends Component {
-  constructor(props){
+export default class PageLayoutDefaultNav extends React.Component {
+  constructor(props) {
     super(props);
     this.state = {
-      isOpen: false
-    }
-    this.toggle = this.toggle.bind(this);
-  }
+      isDropdownOpen: false,
+      isKebabDropdownOpen: false,
+      activeItem: 0
+    };
+    this.onDropdownToggle = isDropdownOpen => {
+      this.setState({
+        isDropdownOpen
+      });
+    };
 
-  componentDidMount() {
+    this.onDropdownSelect = event => {
+      this.setState({
+        isDropdownOpen: !this.state.isDropdownOpen
+      });
+    };
 
-  }
+    this.onKebabDropdownToggle = isKebabDropdownOpen => {
+      this.setState({
+        isKebabDropdownOpen
+      });
+    };
 
-  toggle() {
-    this.setState({
-      isOpen: !this.state.isOpen
-    })
+    this.onKebabDropdownSelect = event => {
+      this.setState({
+        isKebabDropdownOpen: !this.state.isKebabDropdownOpen
+      });
+    };
+
+    this.onNavSelect = result => {
+      this.setState({
+        activeItem: result.itemId
+      });
+    };
   }
 
   render() {
-      return (
-        <HashRouter style={{margin: '0px'}}>
-        <div>
-            <Navbar color="dark" dark sticky="top" expand="md">
-                <NavbarBrand
-                    href="/#/"
-                    style={{
-                        color: 'white',
-                        textShadow: '0px 1px 0px rgba(150, 150, 150,.5), 0px -1px 0px rgba(0,0,0,.7)'
-                    }}
-                    >
-                    React-Frontend
-                </NavbarBrand>
-                <NavbarToggler onClick={this.toggle}/>
-                <Collapse isOpen={this.state.isOpen} navbar>
-                    <Nav className="ml-auto" navbar>
-                    <NavItem>
-                        <NavLink tag={Link} to="/files">File Search</NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink tag={Link} to="/codetables">Code Table Search</NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink tag={Link} to="/customers">Customers</NavLink>
-                    </NavItem>
-                    </Nav>
-                </Collapse>
-            </Navbar>
-            <div>
-            <Route exact path="/" render={() => <Home />}></Route>
-            <Route path="/files" component={FileSearch}></Route>
-            <Route path="/codetables" component={CodeTableSearch}></Route>
-            <Route path="/customers" component={Customers}></Route>
-            </div>
-        </div>
-        </HashRouter>
-      )
+    const { isDropdownOpen, isKebabDropdownOpen, activeItem } = this.state;
+
+    const PageNav = (
+      <Nav onSelect={this.onNavSelect} aria-label="Nav" theme="dark">
+        <NavList>
+          <NavItem itemId={0} isActive={activeItem === 0}>
+            System Panel
+          </NavItem>
+          <NavItem itemId={1} isActive={activeItem === 1}>
+            Policy
+          </NavItem>
+          <NavItem itemId={2} isActive={activeItem === 2}>
+            Authentication
+          </NavItem>
+          <NavItem itemId={3} isActive={activeItem === 3}>
+            Network Services
+          </NavItem>
+          <NavItem itemId={4} isActive={activeItem === 4}>
+            Server
+          </NavItem>
+        </NavList>
+      </Nav>
+    );
+    const kebabDropdownItems = [
+      <DropdownItem>
+        <BellIcon /> Notifications
+      </DropdownItem>,
+      <DropdownItem>
+        <CogIcon /> Settings
+      </DropdownItem>
+    ];
+    const userDropdownItems = [
+      <DropdownItem>Link</DropdownItem>,
+      <DropdownItem component="button">Action</DropdownItem>,
+      <DropdownItem isDisabled>Disabled link</DropdownItem>,
+      <DropdownItem isDisabled component="button">
+        Disabled action
+      </DropdownItem>,
+      <DropdownSeparator />,
+      <DropdownItem>Separated link</DropdownItem>,
+      <DropdownItem component="button">Separated action</DropdownItem>
+    ];
+    const PageToolbar = (
+      <Toolbar>
+        <ToolbarGroup className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnLg)}>
+          <ToolbarItem>
+            <Button id="default-example-uid-01" aria-label="Notifications actions" variant={ButtonVariant.plain}>
+              <BellIcon />
+            </Button>
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button id="default-example-uid-02" aria-label="Settings actions" variant={ButtonVariant.plain}>
+              <CogIcon />
+            </Button>
+          </ToolbarItem>
+        </ToolbarGroup>
+        <ToolbarGroup>
+          <ToolbarItem className={css(accessibleStyles.hiddenOnLg, spacingStyles.mr_0)}>
+            <Dropdown
+              isPlain
+              position="right"
+              onSelect={this.onKebabDropdownSelect}
+              toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
+              isOpen={isKebabDropdownOpen}
+              dropdownItems={kebabDropdownItems}
+            />
+          </ToolbarItem>
+          <ToolbarItem className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnMd)}>
+            <Dropdown
+              isPlain
+              position="right"
+              onSelect={this.onDropdownSelect}
+              isOpen={isDropdownOpen}
+              toggle={<DropdownToggle onToggle={this.onDropdownToggle}>Kyle Baker</DropdownToggle>}
+              dropdownItems={userDropdownItems}
+            />
+          </ToolbarItem>
+        </ToolbarGroup>
+      </Toolbar>
+    );
+
+    const Header = (
+      <PageHeader
+//        logo={<Brand src={imgBrand} alt="Patternfly Logo" />}
+        toolbar={PageToolbar}
+//        avatar={<Avatar src={imgAvatar} alt="Avatar image" />}
+        showNavToggle
+      />
+    );
+    const Sidebar = <PageSidebar nav={PageNav} theme="dark" />;
+    const pageId = 'main-content-page-layout-default-nav';
+    const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>;
+
+    const PageBreadcrumb = (
+      <Breadcrumb>
+        <BreadcrumbItem>Section home</BreadcrumbItem>
+        <BreadcrumbItem to="#">Section title</BreadcrumbItem>
+        <BreadcrumbItem to="#">Section title</BreadcrumbItem>
+        <BreadcrumbItem to="#" isActive>
+          Section landing
+        </BreadcrumbItem>
+      </Breadcrumb>
+    );
+
+    return (
+      <React.Fragment>
+        <Page
+          header={Header}
+          sidebar={Sidebar}
+          isManagedSidebar
+          skipToContent={PageSkipToContent}
+          breadcrumb={PageBreadcrumb}
+          mainContainerId={pageId}
+        >
+          <PageSection variant={PageSectionVariants.light}>
+            <TextContent>
+              <Text component="h1">Main title</Text>
+              <Text component="p">
+                Body text should be Overpass Regular at 16px. It should have leading of 24px because <br />
+                of it’s relative line height of 1.5.
+              </Text>
+            </TextContent>
+          </PageSection>
+          <PageSection>
+            <Gallery gutter="md">
+              {Array.apply(0, Array(10)).map((x, i) => (
+                <GalleryItem key={i}>
+                  <Card>
+                    <CardBody>This is a card</CardBody>
+                  </Card>
+                </GalleryItem>
+              ))}
+            </Gallery>
+          </PageSection>
+        </Page>
+      </React.Fragment>
+    );
   }
-}
-
-const Home = (props) => {
-  return (
-    <div>
-      <h1>Home</h1>
-      <h2>File Search</h2>
-      <h2>Code Table Search</h2>
-      <h2>Customers</h2>
-    </div>
-  )
-}
-
-const FileSearch = () => {
-  return (
-    <h1>File Search Section</h1>
-  )
-}
-
-const CodeTableSearch = () => {
-  return (
-    <h1>Code Table Search Section</h1>
-  )
-}
-
-const Customers = () => {
-  return (
-    <h1>Customers Section</h1>
-  )
 }
