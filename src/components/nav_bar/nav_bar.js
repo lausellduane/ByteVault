@@ -83,7 +83,6 @@ export default class PageLayoutDefaultNav extends Component {
     const Sidebar = <PageSidebar nav={PageNav} theme="dark" />;
     const pageId = 'main-content-page-layout-default-nav';
     const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>;
-    console.log("activeItem: " + activeItem);
 
     return (
       <HashRouter>
