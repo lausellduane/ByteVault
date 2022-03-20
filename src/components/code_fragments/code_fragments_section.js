@@ -36,77 +36,19 @@ export default class CodeFragmentsPage extends React.Component {
       isDrawerExpanded: false,
       isFragmentModalOpen: false,
       fragment: {},
+      fragmentTitleFilter: "",
       activeCard: null,
       filters: {
         fragments: []
       },
-      //res: [],
-      res: [
-        {
-          id: 1,
-          title: "Reverse String",
-          description: "Given a string , reverse all of its characters and return the resulting string.",
-          notes: "",
-          value: "let s = \"civic\";\n\nfunction reverseString(s){\n  let s_arr = s.split(\"\");\n  console.log(\"s_arr: \" + s_arr);\n  let new_s_arr = [];\n  for(let i = s_arr.length - 1; i >= 0; i--){\n    new_s_arr.push(s_arr[i]);\n  }\n  console.log(\"new_s_arr: \" + new_s_arr);\n  return new_s_arr.join(\"\");\n}\nlet result = reverseString(s);\nconsole.log(\"result: \" + result);\n\nfunction isPalindrome(s){\nlet reverse = reverseString(s);\n  if (s == reverse){\n  return true;\n  }\n  return false;\n}",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 2,
-          title: "Check if Palindrome",
-          description: "Given a string, return wheter or not it forms a Palindrome.",
-          notes: "A Palindrome is a sequence of characters that reads the same forwards or backwards.",
-          value: "function isPalindrome(s){\nlet reverse = reverseString(s);\n  if (s == reverse){\n  return true;\n  }\n  return false;\n}\n\nconsole.log(\"result: \" + isPalindrome(s));",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 3,
-          title: "Vaccum Cleaner Route",
-          description: "Given a string representing the sequence of moves a robot vaccum makes, return wheter or not it will return to its original position.",
-          notes: "The string will only contain L, R, U and D characters, representing left, right, up, down respectively. 'LR' returns 'true', 'URURD' returns 'false'.",
-          value: "let steps = \"RUULLDRD\"\n\nfunction vaccumCleanerRoute(s){\nlet s_arr = s.split(\"\");\nlet path = s_arr.map(step => ((step == \"U\" ? 1 : step == \"D\" ? -1 : step == \"R\" ? 2 : step == \"L\" ? -2 : 0)));\n  console.log(\"path: \" + path);\n  let course = 0;\n  for(let i = 0; i < path.length; i++){\n  course += path[i];\n  }\n  console.log(\"course: \" + course);\n  if(course == 0){\n  return true;\n  }\n  return false;\n}\n\nlet isBackToOrigin = vaccumCleanerRoute(steps);\nconsole.log(\"isBackToOrigin: \" + isBackToOrigin); ",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 4,
-          title: "Correct Capitalization",
-          description: "Given a string return whether or not it uses capitalization correctly.",
-          notes: "A string correctly uses capitalization if all letters are capitalized, no letters are capitalized or only the first letter is capitalized.",
-          value: "let s1 = \"USA\"; // return true\nlet s2 = \"Calvin\"; // return true\nlet s3 = \"compUter\"; // return false\nlet s4 = \"coding\"; // return true\n\nascii_caps_table = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90];\n\nfunction correctCapitalization(s){\n	let str_arr = s.split(\"\");\n  console.log(\"str_arr: \" + str_arr);\n  let ascii_arr = str_arr.map(item => item.charCodeAt());\n  console.log(\"ascii_arr: \" + ascii_arr);\n  let target_arr = ascii_arr.map(item => {\n  	return ascii_caps_table.indexOf(item) != -1 ? true : false;\n  });\n  console.log(\"target_arr: \" + target_arr);\n  let caps_idx = target_arr.indexOf(true);\n  console.log(\"caps_idx: \" + caps_idx);\n  let caps_indices = [];\n  while (caps_idx != -1){\n    caps_indices.push(caps_idx);\n    caps_idx = target_arr.indexOf(true, caps_idx + 1)\n  }\n  \n  console.log(\"caps_indices: \" + caps_indices);\n  \n  if (caps_indices.length == target_arr.length || caps_indices.length == 0 || caps_indices[0] == 0){\n  	return true;\n  }\n  \n  return false;\n}\n\nconsole.log(correctCapitalization(s4));",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 5,
-          title: "Add Binary",
-          description: "Given two binary strings (strings containing only 1s or 0s) return their sum (also as a binary string).",
-          notes: "Neither binary string will contain leading 0s unless the string itself is 0.",
-          value: "let s1 = \"100\";\nlet s2 = \"1\";\nlet s3 = \"11\";\nlet s4 = \"1\";\nlet s5 = \"1\";\nlet s6 = \"0\";\n\nfunction addBinary(s1, s2){\n	console.log(\"s1: \" + s1);\n	console.log(\"s2: \" + s2);\n	let d1 = parseInt(s1, 2);\n  console.log(\"d1: \" + d1);\n  let d2 = parseInt(s2, 2);\n  console.log(\"d2: \" + d2);\n  let sum = d1 + d2;\n  console.log(\"sum: \" + sum);\n  \n  return sum.toString(2) \n}\n\nconsole.log(\"addBinary: \" + addBinary(s5, s6));",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 6,
-          title: "Longest Common Prefix",
-          description: "Given two binary strings (strings containing only 1s or 0s) return their sum (also as a binary string).",
-          notes: "Neither binary string will contain leading 0s unless the string itself is 0.",
-          value: "",
-          tags: [{id: 1, label: "string"}],
-          language: 1 // 1: JavaSript
-        },
-        {
-          id: 7,
-          title: "Find the Max Number in a List",
-          description: "Given a list of integers return the max number.",
-          notes: "",
-          value: "# find the max number in a list\r\n\r\nitem_list = [1, 34, 50, 2]\r\ndef find_max(item_list):\r\n    if len(item_list) == 2:\r\n        return item_list[0] if item_list[0] > item_list[1] else item_list[1]\r\n    sub_max = find_max(item_list[1:])\r\n    return item_list[0] if item_list[0] > sub_max else sub_max\r\n\r\nprint(find_max(item_list))",
-          tags: [{id: 2, label: "array"}],
-          language: 2 // 2: Python
-        }
-      ],
-      activeItem: 0
+      activeItem: 0,
+      fragments: [],
+    };
+
+    this.handleFragmentFilterTextInputChange = value => {
+      let fragments = [...this.state.fragments];
+      fragments = fragments.filter(fragment => fragment.title.toLowerCase().includes(value.toLowerCase()));
+      this.setState({ fragmentTitleFilter: value, filters: { fragments }});
     };
 
     this.handleFragmentModalToggle = () => {
@@ -188,35 +130,33 @@ export default class CodeFragmentsPage extends React.Component {
   }
 
   fetch(page, perPage) {
-    fetch(`https://my-json-server.typicode.com/jenny-s51/cardviewdata/posts?_page=${page}&_limit=${perPage}`)
+    fetch(`http://localhost:8080/api/v1/fragments`)
       .then(resp => resp.json())
-      .then(resp => this.setState({ res: resp, perPage, page }))
+      .then(resp => this.setState({ fragments: resp, perPage, page }))
       .then(() => this.updateSelected())
       .catch(err => this.setState({ error: err }));
   }
 
   componentDidMount() {
-    // this.fetch(this.state.page, this.state.perPage);
+    this.fetch(this.state.page, this.state.perPage);
   }
 
   render() {
     const {
       isDrawerExpanded,
       activeCard,
-      // activeItem,
       filters,
-      res,
       fragment,
-      isFragmentModalOpen
+      isFragmentModalOpen,
+      fragmentTitleFilter,
+      fragments
     } = this.state;
-    //console.log("res: " + JSON.stringify(res));
-    //console.log("filters: " + JSON.stringify(filters));
 
     const items = (
       <React.Fragment>
         <ToolbarItem>
           <InputGroup>
-            <TextInput name="textInput1" id="textInput1" type="search" aria-label="search input example" />
+            <TextInput value={fragmentTitleFilter} name="fragmentTitleFilter" id="fragmentTitleFilter" type="search" aria-label="search input example" onChange={this.handleFragmentFilterTextInputChange} />
             <Button variant={ButtonVariant.control} aria-label="search button for search input">
               <SearchIcon />
             </Button>
@@ -234,12 +174,8 @@ export default class CodeFragmentsPage extends React.Component {
 
     const filtered =
       filters.fragments.length > 0
-        ? res.filter(card => {
-            return filters.fragments.length === 0 || filters.fragments.includes(card.name);
-          })
-        : res;
-
-    // console.log("filtered: " + JSON.stringify(filtered));
+        ? filters.fragments
+        : fragments;    
 
     const drawerContent = (
       <Gallery hasGutter>
@@ -285,6 +221,7 @@ export default class CodeFragmentsPage extends React.Component {
             Cancel
           </Button>
         ]}
+        aria-label="modal-aria-label"
       >
         <Grid>
           <GridItem span={6} rowSpan={12}>
