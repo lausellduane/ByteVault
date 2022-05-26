@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Button,
   Card,
+  CardActions,
   CardHeader,
   CardBody,
   CardTitle,
@@ -10,6 +11,8 @@ import {
   DrawerContent,
   DrawerContentBody,
   DrawerSection,
+  Dropdown, DropdownItem,
+  KebabToggle,
   Modal, ModalVariant,
   Gallery,
   Grid, GridItem,
@@ -38,11 +41,24 @@ export default class CodeFragmentsPage extends React.Component {
       fragment: {},
       fragmentTitleFilter: "",
       activeCard: null,
+      activeCardActionDropdown: null,
       filters: {
         fragments: []
       },
       activeItem: 0,
       fragments: [],
+      hasNoOffset: false,
+      setHasNoOffset: false,
+      isCardActionDropdownOpen: false,
+      isCardKebabDropdownOpen: false,
+      isActionModalOpen: false,
+    };
+
+    this.onCardKebabDropdownToggle = (key, isCardKebabDropdownOpen, event) => {
+      event.stopPropagation();
+      this.setState({
+        [key]: !this.state[key],
+      });
     };
 
     this.handleFragmentFilterTextInputChange = value => {
@@ -55,20 +71,6 @@ export default class CodeFragmentsPage extends React.Component {
       this.setState(({ isFragmentModalOpen }) => ({
         isFragmentModalOpen: !isFragmentModalOpen
       }));
-    };
-
-    this.onToolbarDropdownToggle = isLowerToolbarDropdownOpen => {
-      this.setState(prevState => ({
-        isLowerToolbarDropdownOpen
-      }));
-    };
-
-    this.deleteItem = item => event => {
-      const filter = getter => val => getter(val) !== item.id;
-      this.setState({
-        res: this.state.res.filter(filter(({ id }) => id)),
-        selectedItems: this.state.selectedItems.filter(filter(id => id))
-      });
     };
 
     this.onDelete = (type = '', id = '') => {
@@ -96,6 +98,7 @@ export default class CodeFragmentsPage extends React.Component {
     };
 
     this.onCardClick = (fragment, event) => {
+      console.log("onCardClick")
       if (event.currentTarget.id === this.state.activeCard) {
         this.setState({isFragmentModalOpen: true});
         return;
@@ -117,6 +120,36 @@ export default class CodeFragmentsPage extends React.Component {
     this.onSetPage = (_evt, page) => {
       this.setState({ page });
     };
+
+    this.deleteFragment = (e, body, key) => {
+      e.stopPropagation();
+      const fragmentID = body._id;
+      const requestBody = {"id": fragmentID};
+      const response = fetch(`http://localhost:8080/api/v1/fragments`, {
+        method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(requestBody) // body data type must match "Content-Type" header
+      });
+      this.setState({fragment: {}, isActionModalOpen: false});
+    }
+
+    this.handleActionModalToggle = (e = {}, fragment = {}) => {
+      e.stopPropagation();
+      console.log('handleActionModalToggle e: ', e);
+      console.log('handleActionModalToggle fragment: ', fragment);
+      this.setState(({ isActionModalOpen }) => ({
+        isActionModalOpen: !isActionModalOpen,
+        fragment: fragment,
+      }));
+    };
   }
 
   getAllItems() {
@@ -129,7 +162,7 @@ export default class CodeFragmentsPage extends React.Component {
     return collection;
   }
 
-  fetch(page, perPage) {
+  fetchFragments(page, perPage) {
     fetch(`http://localhost:8080/api/v1/fragments`)
       .then(resp => resp.json())
       .then(resp => this.setState({ fragments: resp, perPage, page }))
@@ -138,19 +171,53 @@ export default class CodeFragmentsPage extends React.Component {
   }
 
   componentDidMount() {
-    this.fetch(this.state.page, this.state.perPage);
+    this.fetchFragments(this.state.page, this.state.perPage);
   }
 
   render() {
     const {
       isDrawerExpanded,
       activeCard,
+      activeCardActionDropdown,
       filters,
       fragment,
       isFragmentModalOpen,
       fragmentTitleFilter,
-      fragments
+      fragments,
+      isActionModalOpen,
     } = this.state;
+
+    const ActionModal = (fragment, key) => (
+      <Modal
+        variant={ModalVariant.small}
+        title="Are you sure you want to delete?"
+        titleIconVariant="warning"
+        isOpen={isActionModalOpen}
+        onClose={e => this.handleActionModalToggle(e)}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={(e) => this.deleteFragment(e, this.state.fragment, key)}>
+            Confirm
+          </Button>,
+          <Button key="cancel" variant="tertiary" onClick={e => this.handleActionModalToggle(e)}>
+            Cancel
+          </Button>
+        ]}
+      >
+        { this.state.fragment.title}
+        <br/>
+        { this.state.fragment.description}
+      </Modal>
+    )
+
+    const dropdownItems = (fragment, key) => {
+      return [
+      <DropdownItem key="action-edit" component="button">
+        Edit
+      </DropdownItem>,
+      <DropdownItem key="action-delete" component="button" onClick={(e) => this.handleActionModalToggle(e, fragment)}>
+        Delete
+      </DropdownItem>,
+      ]};
 
     const items = (
       <React.Fragment>
@@ -163,7 +230,7 @@ export default class CodeFragmentsPage extends React.Component {
           </InputGroup>
         </ToolbarItem>
         <ToolbarItem>
-          <Button variant="secondary">Action</Button>
+          <Button variant="primary">Add Code Fragment</Button>
         </ToolbarItem>
         <ToolbarItem variant="separator" />
         <ToolbarItem>
@@ -183,15 +250,20 @@ export default class CodeFragmentsPage extends React.Component {
           <React.Fragment key={key}>
             <Card
               isHoverable
-              key={key}
+              key={'card-' + key}
               id={'card-view-' + (parseInt(key) + 1)}
-              // onKeyDown={this.onKeyDown}
               onClick={(e) => this.onCardClick(fragment, e)}
-              isSelectable
-              isSelected={activeCard === key}
             >
               <CardHeader>
-                {/* <img src={icons[fragment.icon]} alt={`${fragment.name} icon`} style={{ height: '50px' }} /> */}
+                <CardActions>
+                  <Dropdown 
+                    toggle={<KebabToggle onToggle={(isCardKebabDropdownOpen, e) => this.onCardKebabDropdownToggle(key, isCardKebabDropdownOpen, e)} />}
+                    isOpen={this.state[key]}
+                    isPlain 
+                    dropdownItems={dropdownItems(fragment, key)} 
+                    position={'right'} 
+                  />
+                </CardActions>
               </CardHeader>
               <CardTitle>{fragment.title}</CardTitle>
               <CardBody>
@@ -202,6 +274,7 @@ export default class CodeFragmentsPage extends React.Component {
                 }
               </CardBody>
             </Card>
+            <ActionModal fragment={fragment} key={key}/>
           </React.Fragment>
         ))}
       </Gallery>
@@ -214,12 +287,9 @@ export default class CodeFragmentsPage extends React.Component {
         isOpen={isFragmentModalOpen}
         onClose={this.handleFragmentModalToggle}
         actions={[
-          <Button key="confirm" variant="primary" onClick={this.handleFragmentModalToggle}>
-            Confirm
+          <Button key="dismiss" variant="primary" onClick={this.handleFragmentModalToggle}>
+            Dismiss
           </Button>,
-          <Button key="cancel" variant="link" onClick={this.handleFragmentModalToggle}>
-            Cancel
-          </Button>
         ]}
         aria-label="modal-aria-label"
       >

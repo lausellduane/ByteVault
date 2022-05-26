@@ -38,7 +38,7 @@ export default class BasicCodeEditor extends React.Component {
     };
     
     this.onEditorDidMount = (editor, monaco) => {
-      console.log(editor.getValue());
+      // console.log(editor.getValue());
       editor.layout();
       editor.focus();
       monaco.editor.getModels()[0].updateOptions({ tabSize: 5 });

@@ -32,10 +32,6 @@ const routes = [
     path: "/code_fragments",
     main: () => <CodeFragmentsPage />
   },
-  {
-    path: "/projects",
-    main: () => <h2>Projects</h2>
-  }
 ];
 
 export default class PageLayoutDefaultNav extends Component {
@@ -65,18 +61,12 @@ export default class PageLayoutDefaultNav extends Component {
           <NavItem id="code_fragments" to="/code_fragments" itemId={1} isActive={activeItem === 1}>
             <Link to="/code_fragments">Code Fragments</Link>
           </NavItem>
-          <NavItem id="projects" to="/projects" itemId={2} isActive={activeItem === 2}>
-            <Link to="/projects">Projects</Link>
-          </NavItem>
         </NavList>
       </Nav>
     );
 
     const Header = (
       <PageHeader
-        // logo={<Brand src={imgBrand} alt="Patternfly Logo" />}
-        // toolbar={PageToolbar}
-        // avatar={<Avatar src={imgAvatar} alt="Avatar image" />}
         showNavToggle
       />
     );
