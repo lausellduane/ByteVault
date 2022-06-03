@@ -138,13 +138,11 @@ export default class CodeFragmentsPage extends React.Component {
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(requestBody) // body data type must match "Content-Type" header
       });
-      this.setState({fragment: {}, isActionModalOpen: false});
+      this.setState(() => ({fragment: {}, isActionModalOpen: false, [key]: false}));
     }
 
     this.handleActionModalToggle = (e = {}, fragment = {}) => {
       e.stopPropagation();
-      console.log('handleActionModalToggle e: ', e);
-      console.log('handleActionModalToggle fragment: ', fragment);
       this.setState(({ isActionModalOpen }) => ({
         isActionModalOpen: !isActionModalOpen,
         fragment: fragment,
@@ -186,8 +184,13 @@ export default class CodeFragmentsPage extends React.Component {
       fragments,
       isActionModalOpen,
     } = this.state;
+    
+    console.log('this.state: ', this.state)
 
-    const ActionModal = (fragment, key) => (
+    const ActionModal = (props) => {
+      const { title, description } = this.state.fragment;
+      const {otherKey: key} = props;
+      return (
       <Modal
         variant={ModalVariant.small}
         title="Are you sure you want to delete?"
@@ -198,16 +201,16 @@ export default class CodeFragmentsPage extends React.Component {
           <Button key="confirm" variant="primary" onClick={(e) => this.deleteFragment(e, this.state.fragment, key)}>
             Confirm
           </Button>,
-          <Button key="cancel" variant="tertiary" onClick={e => this.handleActionModalToggle(e)}>
+          <Button key="cancel" variant="tertiary" onClick={e => this.handleActionModalToggle(e, key)}>
             Cancel
           </Button>
         ]}
       >
-        { this.state.fragment.title}
+        { title }
         <br/>
-        { this.state.fragment.description}
+        { description }
       </Modal>
-    )
+    )}
 
     const dropdownItems = (fragment, key) => {
       return [
@@ -274,7 +277,7 @@ export default class CodeFragmentsPage extends React.Component {
                 }
               </CardBody>
             </Card>
-            <ActionModal fragment={fragment} key={key}/>
+            <ActionModal fragment={fragment} otherKey={key}/>
           </React.Fragment>
         ))}
       </Gallery>
