@@ -28,6 +28,7 @@ import {
 import { ToolbarContent, ButtonVariant, InputGroup, TextInput } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import BasicCodeEditor from '../utils/code_editor';
+import { FragmentModal } from './create_fragment';
 
 export default class CodeFragmentsPage extends React.Component {
   constructor(props) {
@@ -52,6 +53,9 @@ export default class CodeFragmentsPage extends React.Component {
       isCardActionDropdownOpen: false,
       isCardKebabDropdownOpen: false,
       isActionModalOpen: false,
+      isCreateFragmentModalOpen: false,
+      tags: [],
+      programmingLanguages: [],
     };
 
     this.onCardKebabDropdownToggle = (key, isCardKebabDropdownOpen, event) => {
@@ -121,11 +125,11 @@ export default class CodeFragmentsPage extends React.Component {
       this.setState({ page });
     };
 
-    this.deleteFragment = (e, body, key) => {
+    this.deleteFragment = (e, body, key) => { // TODO: refresh list of fragments
       e.stopPropagation();
       const fragmentID = body._id;
       const requestBody = {"id": fragmentID};
-      const response = fetch(`http://localhost:8080/api/v1/fragments`, {
+      fetch(`http://localhost:8080/api/v1/fragments`, {
         method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -148,6 +152,12 @@ export default class CodeFragmentsPage extends React.Component {
         fragment: fragment,
       }));
     };
+
+    this.handleCreatFragmentModalToggle = () => {
+      this.setState(({ isCreateFragmentModalOpen }) => ({
+        isCreateFragmentModalOpen: !isCreateFragmentModalOpen,
+      }));
+    };
   }
 
   getAllItems() {
@@ -168,24 +178,41 @@ export default class CodeFragmentsPage extends React.Component {
       .catch(err => this.setState({ error: err }));
   }
 
+  fetchTags() {
+    fetch(`http://localhost:8080/api/v1/fragments/tags`)
+    .then(resp => resp.json())
+    .then(resp => this.setState({ tags: resp }))
+    .catch(err => this.setState({ error: err }));
+  }
+
+  fetchProgrammingLanguages() {
+    fetch(`http://localhost:8080/api/v1/programming-languages`)
+    .then(resp => resp.json())
+    .then(resp => this.setState({ programmingLanguages: resp }))
+    .catch(err => this.setState({ error: err }));
+  }
+
   componentDidMount() {
     this.fetchFragments(this.state.page, this.state.perPage);
+    this.fetchTags();
+    this.fetchProgrammingLanguages();
   }
 
   render() {
     const {
       isDrawerExpanded,
-      activeCard,
-      activeCardActionDropdown,
       filters,
       fragment,
       isFragmentModalOpen,
       fragmentTitleFilter,
       fragments,
       isActionModalOpen,
+      isCreateFragmentModalOpen,
+      tags,
+      programmingLanguages,
     } = this.state;
     
-    console.log('this.state: ', this.state)
+    // console.log('this.state: ', this.state)
 
     const ActionModal = (props) => {
       const { title, description } = this.state.fragment;
@@ -233,7 +260,7 @@ export default class CodeFragmentsPage extends React.Component {
           </InputGroup>
         </ToolbarItem>
         <ToolbarItem>
-          <Button variant="primary">Add Code Fragment</Button>
+          <Button variant="primary" onClick={this.handleCreatFragmentModalToggle}>Add Code Fragment</Button>
         </ToolbarItem>
         <ToolbarItem variant="separator" />
         <ToolbarItem>
@@ -271,9 +298,8 @@ export default class CodeFragmentsPage extends React.Component {
               <CardTitle>{fragment.title}</CardTitle>
               <CardBody>
                 {
-                  fragment.language === 1 ? "JavaScript" : 
-                  fragment.language === 2 ? "Python" :
-                  fragment.language === 3 ? "Golang" : null
+                  // check [0]?.label for possible rendering bugs
+                  programmingLanguages.filter(item => fragment.language === item.id)[0]?.label
                 }
               </CardBody>
             </Card>
@@ -303,9 +329,7 @@ export default class CodeFragmentsPage extends React.Component {
                 <TextListItem component="dt">Language</TextListItem>
                 <TextListItem component="dd">
                   {
-                    fragment.language === 1 ? "JavaScript" : 
-                    fragment.language === 2 ? "Python" :
-                    fragment.language === 3 ? "Golang" : null
+                    programmingLanguages.filter(item => fragment.language === item.id)[0]?.label
                   }
                 </TextListItem>
                 <TextListItem component="dt">Description</TextListItem>
@@ -347,6 +371,12 @@ export default class CodeFragmentsPage extends React.Component {
         </PageSection>
         <PageSection isFilled padding={{ default: 'noPadding' }}>
           {modalContent}
+            <FragmentModal 
+              isOpen={isCreateFragmentModalOpen} 
+              handleCreatFragmentModalToggle={this.handleCreatFragmentModalToggle} 
+              tags={tags}
+              programmingLanguages={programmingLanguages}
+            />
         </PageSection>
         <PageSection isFilled={false} sticky="bottom" padding={{ default: 'noPadding' }} variant="light">
           <Pagination
