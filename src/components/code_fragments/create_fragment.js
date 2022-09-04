@@ -62,7 +62,7 @@ export const FragmentModal = (props) => {
 
   return <>
       <Modal 
-        variant={ModalVariant.small} 
+        variant={ModalVariant.medium} 
         title="Create Fragment" 
         description="Enter your fragment information below to create a fragment." 
         isOpen={isOpen} 
@@ -88,80 +88,90 @@ export const FragmentModal = (props) => {
         }
       >
         <Form id="modal-with-create-fragment-form">
-          <FormGroup 
-            label="Title" 
-            isRequired 
-            fieldId="modal-with-create-fragment-form-title"
-          >
-            <TextInput 
-                isRequired 
-                type="text" 
-                id="modal-with-form-form-title" 
-                name="modal-with-form-form-title" 
-                value={title} 
-                onChange={handleTitleInputChange} 
-            />
-          </FormGroup>
-          <FormGroup 
-            label="Description" 
-            isRequired 
-            fieldId="modal-with-create-fragment-form-description"
-          >
-            <TextArea 
-                isRequired 
-                id="modal-with-form-form-description" 
-                name="modal-with-form-form-description" 
-                value={description} 
-                onChange={handleDescriptionInputChange} 
-            />
-          </FormGroup>
-          <FormGroup 
-            label="Notes"
-            fieldId="modal-with-create-fragment-form-notes"
-          >
-            <TextArea
-                id="modal-with-form-form-notes" 
-                name="modal-with-form-form-notes" 
-                value={notes} 
-                onChange={handleNotesInputChange} 
+          <div class="pf-l-grid pf-m-gutter">
+            <FormGroup 
+              label="Title" 
+              isRequired 
+              fieldId="modal-with-create-fragment-form-title"
+            >
+              <TextInput 
+                  isRequired 
+                  type="text" 
+                  id="modal-with-form-form-title" 
+                  name="modal-with-form-form-title" 
+                  value={title} 
+                  onChange={handleTitleInputChange} 
               />
-          </FormGroup>
-          <FormGroup 
-            label="Language"
-            isRequired
-            fieldId="modal-with-create-fragment-form-language"
-          >
-            <TypeaheadSelectInput
-              options={props.programmingLanguages}
-              ariaLabel="Select language"
-              placeholderText="Select language"
-              fieldId="language"
-              handleLaguageInputChange={handleLaguageInputChange}
-            />
-          </FormGroup>
-          <FormGroup 
-            label="Snippet" 
-            isRequired 
-            fieldId="modal-with-create-fragment-form-snippet"
-          >
-            <BasicCodeEditor
-                id="modal-with-form-form-snippet"  
-                value={snippet} 
-                language={language}
-                handleSnippetInputChange={handleSnippetInputChange} 
-            />
-          </FormGroup>
-          <FormGroup 
-            label="Tags"
-            fieldId="modal-with-create-fragment-form-tags"
-          >
-            <MultiTypeaheadSelectInput 
-              options={props.tags}
-              ariaLabel="Select tag(s)"
-              placeholderText="Select tag(s)"
-              handleTagsInputChange={handleTagsInputChange}
-            />
-          </FormGroup>
+            </FormGroup>
+            <div class="pf-l-grid__item pf-m-6-col">
+              <FormGroup 
+                label="Description" 
+                isRequired 
+                fieldId="modal-with-create-fragment-form-description"
+              >
+                <TextArea 
+                    isRequired 
+                    id="modal-with-form-form-description" 
+                    name="modal-with-form-form-description" 
+                    value={description} 
+                    onChange={handleDescriptionInputChange} 
+                />
+              </FormGroup>
+            </div>
+            <div class="pf-l-grid__item pf-m-6-col">
+              <FormGroup 
+                label="Notes"
+                fieldId="modal-with-create-fragment-form-notes"
+              >
+                <TextArea
+                    id="modal-with-form-form-notes" 
+                    name="modal-with-form-form-notes" 
+                    value={notes} 
+                    onChange={handleNotesInputChange} 
+                  />
+              </FormGroup>
+            </div>
+            <div class="pf-l-grid__item pf-m-6-col">
+              <FormGroup 
+                label="Language"
+                isRequired
+                fieldId="modal-with-create-fragment-form-language"
+              >
+                <TypeaheadSelectInput
+                  options={props.programmingLanguages}
+                  ariaLabel="Select language"
+                  placeholderText="Select language"
+                  fieldId="language"
+                  handleLaguageInputChange={handleLaguageInputChange}
+                />
+              </FormGroup>
+            </div>
+            <div class="pf-l-grid__item pf-m-6-col">
+              <FormGroup 
+                label="Tags"
+                fieldId="modal-with-create-fragment-form-tags"
+              >
+                <MultiTypeaheadSelectInput 
+                  options={props.tags}
+                  ariaLabel="Select tag(s)"
+                  placeholderText="Select tag(s)"
+                  handleTagsInputChange={handleTagsInputChange}
+                />
+              </FormGroup>
+            </div>
+            <FormGroup 
+              label="Snippet" 
+              isRequired 
+              fieldId="modal-with-create-fragment-form-snippet"
+            >
+              <BasicCodeEditor
+                  id="modal-with-form-form-snippet"  
+                  value={snippet} 
+                  language={language}
+                  handleSnippetInputChange={handleSnippetInputChange} 
+              />
+            </FormGroup>
+          </div>
         </Form>
       </Modal>
     </>;
