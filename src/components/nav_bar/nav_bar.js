@@ -21,6 +21,7 @@ import {
   Link
 } from "react-router-dom";
 import CodeFragmentsPage from "../code_fragments/code_fragments_section";
+import { CodeFragmentsSection } from '../code_fragments/code_fragments_section_function';
 
 const routes = [
   {
@@ -32,6 +33,10 @@ const routes = [
     path: "/code_fragments",
     main: () => <CodeFragmentsPage />
   },
+  {
+    path: "/code_fragments_function",
+    main: () => <CodeFragmentsSection />
+  },
 ];
 
 export default class PageLayoutDefaultNav extends Component {
@@ -42,7 +47,6 @@ export default class PageLayoutDefaultNav extends Component {
     };
 
     this.onNavSelect = result => {
-      console.log("result: " + result);
       this.setState({
         activeItem: result.itemId
       });
@@ -60,6 +64,9 @@ export default class PageLayoutDefaultNav extends Component {
           </NavItem>
           <NavItem id="code_fragments" to="/code_fragments" itemId={1} isActive={activeItem === 1}>
             <Link to="/code_fragments">Code Fragments</Link>
+          </NavItem>
+          <NavItem id="code_fragments_function" to="/code_fragments_function" itemId={2} isActive={activeItem === 2}>
+            <Link to="/code_fragments_function">Code Fragments Function</Link>
           </NavItem>
         </NavList>
       </Nav>
