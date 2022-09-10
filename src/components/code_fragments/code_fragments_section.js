@@ -27,7 +27,7 @@ import {
 } from '@patternfly/react-core';
 import { ToolbarContent, ButtonVariant, InputGroup, TextInput } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import BasicCodeEditor from '../utils/code_editor';
+import { ByteVaultCodeEditor } from '../utils/code_editor';
 import { FragmentModal } from './create_fragment';
 
 export default class CodeFragmentsPage extends React.Component {
@@ -129,6 +129,7 @@ export default class CodeFragmentsPage extends React.Component {
       e.stopPropagation();
       const fragmentID = body._id;
       const requestBody = {"id": fragmentID};
+      console.log(JSON.stringify(requestBody));
       fetch(`http://localhost:8080/api/v1/fragments`, {
         method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
@@ -342,7 +343,7 @@ export default class CodeFragmentsPage extends React.Component {
             </TextContent>
           </GridItem>
           <GridItem span={6} rowSpan={12}>
-            <BasicCodeEditor value={fragment.value} language={fragment.language}/>
+            <ByteVaultCodeEditor value={fragment.value} language={fragment.language}/>
           </GridItem>
         </Grid>
       </Modal>
@@ -373,7 +374,7 @@ export default class CodeFragmentsPage extends React.Component {
           {modalContent}
             <FragmentModal 
               isOpen={isCreateFragmentModalOpen} 
-              handleCreatFragmentModalToggle={this.handleCreatFragmentModalToggle} 
+              setIsOpen={this.handleCreatFragmentModalToggle} 
               tags={tags}
               programmingLanguages={programmingLanguages}
             />
