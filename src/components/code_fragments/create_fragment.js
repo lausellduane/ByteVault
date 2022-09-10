@@ -1,19 +1,25 @@
 import React from 'react';
 import {Modal, ModalVariant, Button, Form, FormGroup, TextInput, TextArea} from '@patternfly/react-core';
 // import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
-import BasicCodeEditor from '../utils/code_editor';
+import { ByteVaultCodeEditor } from '../utils/code_editor';
 // import { Language } from '@patternfly/react-code-editor';
 import { MultiTypeaheadSelectInput } from '../utils/multi_select';
 import { TypeaheadSelectInput } from '../utils/single_select';
+import { useFragmentPostMutation } from '../../api/useFragmentsPostEndpoints';
 
 export const FragmentModal = (props) => {
-  const { isOpen, handleCreatFragmentModalToggle } = props;
+  const { isOpen, setIsOpen } = props;
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [notes, setNotes] = React.useState('');
   const [snippet, setSnippet] = React.useState('');
   const [language, setLanguage] = React.useState({});
   const [tags, setTags] = React.useState([]);
+  const { useCreateFragment } = useFragmentPostMutation();
+
+  console.log("useCreateFragment isLoading: ", useCreateFragment.isLoading)
+  console.log("useCreateFragment isError: ", useCreateFragment.isError)
+  console.log("useCreateFragment isSuccess: ", useCreateFragment.isSuccess)
 
   const handleTitleInputChange = value => {
     setTitle(value);
@@ -39,6 +45,15 @@ export const FragmentModal = (props) => {
     setTags(value);
   };
 
+  const clearInputs = () => {
+    handleTitleInputChange('');
+    handleDescriptionInputChange('');
+    handleNotesInputChange('');
+    handleSnippetInputChange('');
+    handleLaguageInputChange({});
+    handleTagsInputChange([]);
+  }
+
   const onCreateFragment = (e) => {
     e.preventDefault();
     const body = {
@@ -48,16 +63,12 @@ export const FragmentModal = (props) => {
       "value": snippet,
       "tags": tags,
       "language": language?.id
-    }
-    console.log("body: ", body);
+    };
 
-    handleCreatFragmentModalToggle(false);
-    handleTitleInputChange('');
-    handleDescriptionInputChange('');
-    handleNotesInputChange('');
-    handleSnippetInputChange('');
-    handleLaguageInputChange({});
-    handleTagsInputChange([]);
+    useCreateFragment.mutate(body);
+
+    setIsOpen(false);
+    clearInputs();
   }
 
   return <>
@@ -66,7 +77,7 @@ export const FragmentModal = (props) => {
         title="Create Fragment" 
         description="Enter your fragment information below to create a fragment." 
         isOpen={isOpen} 
-        onClose={handleCreatFragmentModalToggle} 
+        onClose={() => setIsOpen(false)} 
         actions={
             [
                 <Button 
@@ -80,7 +91,7 @@ export const FragmentModal = (props) => {
                 <Button 
                     key="cancel" 
                     variant="link" 
-                    onClick={handleCreatFragmentModalToggle}
+                    onClick={() => setIsOpen(false)}
                 >
                     Cancel
                 </Button>
@@ -88,7 +99,7 @@ export const FragmentModal = (props) => {
         }
       >
         <Form id="modal-with-create-fragment-form">
-          <div class="pf-l-grid pf-m-gutter">
+          <div className="pf-l-grid pf-m-gutter">
             <FormGroup 
               label="Title" 
               isRequired 
@@ -103,7 +114,7 @@ export const FragmentModal = (props) => {
                   onChange={handleTitleInputChange} 
               />
             </FormGroup>
-            <div class="pf-l-grid__item pf-m-6-col">
+            <div className="pf-l-grid__item pf-m-6-col">
               <FormGroup 
                 label="Description" 
                 isRequired 
@@ -118,7 +129,7 @@ export const FragmentModal = (props) => {
                 />
               </FormGroup>
             </div>
-            <div class="pf-l-grid__item pf-m-6-col">
+            <div className="pf-l-grid__item pf-m-6-col">
               <FormGroup 
                 label="Notes"
                 fieldId="modal-with-create-fragment-form-notes"
@@ -131,7 +142,7 @@ export const FragmentModal = (props) => {
                   />
               </FormGroup>
             </div>
-            <div class="pf-l-grid__item pf-m-6-col">
+            <div className="pf-l-grid__item pf-m-6-col">
               <FormGroup 
                 label="Language"
                 isRequired
@@ -146,7 +157,7 @@ export const FragmentModal = (props) => {
                 />
               </FormGroup>
             </div>
-            <div class="pf-l-grid__item pf-m-6-col">
+            <div className="pf-l-grid__item pf-m-6-col">
               <FormGroup 
                 label="Tags"
                 fieldId="modal-with-create-fragment-form-tags"
@@ -164,7 +175,7 @@ export const FragmentModal = (props) => {
               isRequired 
               fieldId="modal-with-create-fragment-form-snippet"
             >
-              <BasicCodeEditor
+              <ByteVaultCodeEditor
                   id="modal-with-form-form-snippet"  
                   value={snippet} 
                   language={language}
