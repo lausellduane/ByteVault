@@ -42,6 +42,9 @@ import PenIcon from '@patternfly/react-icons/dist/esm/icons/pen-icon';
 
 import { byteVaultApi } from "../../api/http-client";
 import { FetchFragments, FetchProgrammingLanguages, FetchTags } from "../../api/GET.api";
+import { ByteVaultCodeEditor } from '../utils/code_editor';
+import { FragmentModal } from './create_fragment';
+import { useFragmentDeleteMutation } from "../../api/useFragmentsDeleteEndpoints";
 
 export function CodeFragmentsSection() {
     const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
@@ -62,8 +65,14 @@ export function CodeFragmentsSection() {
     const [fetchFragmentsError, setFetchFragmentsError] = useState(null);
     const [fetchProgrammingLanguagesError, setFetchProgrammingLanguagesError] = useState('');
     const [fragmentsIdsObj, setFragmentsIdsObj] = useState({});
-
+    const { useDeleteFragment } = useFragmentDeleteMutation();
     const queryClient = useQueryClient()
+
+
+    // console.log("useDeleteFragment isLoading: ", useDeleteFragment.isLoading);
+    // console.log("useDeleteFragment isError: ", useDeleteFragment.isError);
+    // console.log("useDeleteFragment isSuccess: ", useDeleteFragment.isSuccess);
+    // console.log("useDeleteFragment data: ", useDeleteFragment.data);
 
     // Queries
 
@@ -82,7 +91,7 @@ export function CodeFragmentsSection() {
 
     // console.log('fragmentsDataIsLoading: ', fragmentsDataIsLoading);
     // console.log('fragmentsDataIsError: ', fragmentsDataIsError);
-    console.log('fragmentsData: ', fragmentsData);
+    // console.log('fragmentsData: ', fragmentsData);
     // console.log('fragmentsDataError: ', fragmentsDataError);
 
     const {
@@ -112,6 +121,7 @@ export function CodeFragmentsSection() {
     const handleCardKebabDropdown = (flag, event, elementID) => {
         event.preventDefault();
         event.stopPropagation();
+        setIsFragmentModalOpen(false);
         setFragmentsIdsObj({...fragmentsIdsObj, [elementID]: !fragmentsIdsObj[elementID]});
     };
 
@@ -122,9 +132,10 @@ export function CodeFragmentsSection() {
     };
 
     const handleFragmentCardOnClick = (e, fragment) => {
-        console.log("handleFragmentCardOnClick e: ", e);
-        console.log("handleFragmentCardOnClick fragment: ", fragment);
+        // console.log("handleFragmentCardOnClick e: ", e);
+        // console.log("handleFragmentCardOnClick fragment: ", fragment);
         e.preventDefault();
+        e.stopPropagation();
         if (e.currentTarget.id === activeCard) {
             setIsFragmentModalOpen(true);
             return;
@@ -155,31 +166,26 @@ export function CodeFragmentsSection() {
             </>
         );
 
-    const onDeleteFragment = (e, body, key) => {
+    const onDeleteFragment = (e, elementID) => {
+        e.preventDefault();
         e.stopPropagation();
-        const fragmentID = body._id;
-        const requestBody = {"id": fragmentID};
-        fetch(`http://localhost:8080/api/v1/fragments`, {
-          method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
-          mode: 'cors', // no-cors, *cors, same-origin
-          cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: 'same-origin', // include, *same-origin, omit
-          headers: {
-            'Content-Type': 'application/json'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: 'follow', // manual, *follow, error
-          referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          body: JSON.stringify(requestBody) // body data type must match "Content-Type" header
+        useDeleteFragment.mutate({"id": elementID}, {
+            onSuccess: res => {
+                console.log('useDeleteFragment res: ', res);
+            },
+            onError: (error) => {
+                console.log('useDeleteFragment error: ', error);
+            }
         });
+        
         setFragment({});
         setIsActionModalOpen(false);
-        setDropdownKey(false); // check key
+        setIsFragmentModalOpen(false);
+        setFragmentsIdsObj({...fragmentsIdsObj, [elementID]: !fragmentsIdsObj[elementID]});
     }
 
     const ActionModal = (props) => {
-        // console.log('props: ', props);
-        const {otherKey: key} = props;
+        const { elementID } = props;
         return (
         <Modal
           variant={ModalVariant.small}
@@ -188,7 +194,7 @@ export function CodeFragmentsSection() {
           isOpen={isActionModalOpen}
           onClose={() => setIsActionModalOpen(false)}
           actions={[
-            <Button key="confirm" variant="primary" onClick={(e) => onDeleteFragment(e, fragment, key)}>
+            <Button key="confirm" variant="primary" onClick={(e) => onDeleteFragment(e, elementID)}>
               Confirm
             </Button>,
             <Button key="cancel" variant="tertiary" onClick={() => setIsActionModalOpen(false)}>
@@ -196,9 +202,9 @@ export function CodeFragmentsSection() {
             </Button>
           ]}
         >
-          { fragment.title }
+          Title: { fragment.title }
           <br/>
-          { fragment.description }
+          Description: { fragment.description }
         </Modal>
       )}
 
@@ -208,54 +214,103 @@ export function CodeFragmentsSection() {
             <PenIcon />{' '}
             Edit
         </DropdownItem>,
-        <DropdownItem key={`action-delete-${fragment._id}`} component="button" onClick={(e) => onDeleteFragment(e, fragment)}>
+        <DropdownItem key={`action-delete-${fragment._id}`} component="button" onClick={() => setIsActionModalOpen(true)}>
             <TrashIcon />{' '}
             Delete
         </DropdownItem>,
     ]};
 
     const drawerContent = (
-            <>
-                <Gallery hasGutter>
-                {fragments?.map((element, key) => (
-                    <div key={element._id} id={element._id}>
-                        <Card
-                            isHoverable
-                            key={`card-${element._id}`}
-                            id={`card-view-${element._id}`}
-                            onClick={(event) => handleFragmentCardOnClick(event, element)}
-                        >
-                            <CardHeader>
-                                <CardActions>
-                                    <Dropdown
-                                        toggle={<KebabToggle onToggle={(flag, event) => handleCardKebabDropdown(flag, event, element._id)} />}
-                                        isOpen={fragmentsIdsObj[element._id]}
-                                        isPlain 
-                                        dropdownItems={dropdownItems(element)} 
-                                        position={'right'} 
-                                        />
-                                </CardActions>
-                            </CardHeader>
-                            <CardTitle>{element.title}</CardTitle>
-                            <CardBody>
-                            {
-                                // check [0]?.label for possible rendering bugs
-                                programmingLanguagesData?.filter(item => element.language === item.id)[0]?.label
-                            }
-                            </CardBody>
-                        </Card>
-                        <ActionModal otherKey={key}/>
-                    </div>
-                ))}
-                </Gallery>
-            </>
-        );
+        <>
+            <Gallery hasGutter>
+            {fragments?.map((element, key) => (
+                <div key={element._id} id={element._id}>
+                    <Card
+                        isHoverable
+                        key={`card-${element._id}`}
+                        id={`card-view-${element._id}`}
+                        onClick={(event) => handleFragmentCardOnClick(event, element)}
+                    >
+                        <CardHeader>
+                            <CardActions>
+                                <Dropdown
+                                    toggle={<KebabToggle onToggle={(flag, event) => handleCardKebabDropdown(flag, event, element._id)} />}
+                                    isOpen={fragmentsIdsObj[element._id]}
+                                    isPlain 
+                                    dropdownItems={dropdownItems(element)} 
+                                    position={'right'} 
+                                    />
+                            </CardActions>
+                        </CardHeader>
+                        <CardTitle>{element.title}</CardTitle>
+                        <CardBody>
+                        {
+                            // check [0]?.label for possible rendering bugs
+                            programmingLanguagesData?.filter(item => element.language === item.id)[0]?.label
+                        }
+                        </CardBody>
+                    </Card>
+                    <ActionModal elementID={element._id}/>
+                </div>
+            ))}
+            </Gallery>
+        </>
+    );
+
+    const aboutFragmentModalContent = (
+        <Modal
+            variant={ModalVariant.large}
+            title={fragment.title}
+            isOpen={isFragmentModalOpen}
+            onClose={() => setIsFragmentModalOpen(false)}
+            actions={[
+            <Button key="dismiss" variant="primary" onClick={() => setIsFragmentModalOpen(false)}>
+                Dismiss
+            </Button>,
+            ]}
+            aria-label="modal-aria-label"
+        >
+            <Grid>
+                <GridItem span={6} rowSpan={12}>
+                    <TextContent>
+                    <TextList component="dl">
+                        <TextListItem component="dt">Language</TextListItem>
+                        <TextListItem component="dd">
+                        {
+                            programmingLanguagesData?.filter(item => fragment.language === item.id)[0]?.label
+                        }
+                        </TextListItem>
+                        <TextListItem component="dt">Description</TextListItem>
+                        <TextListItem component="dd">{fragment.description}</TextListItem>
+                        <TextListItem component="dt">Notes</TextListItem>
+                        <TextListItem component="dd">{fragment.notes}</TextListItem>
+                        <TextListItem component="dt">Tags</TextListItem>
+                        <TextListItem component="dd">{fragment && fragment.tags && fragment.tags.length > 0 && fragment.tags.map(item => <Text key={item.id}>{item.label}</Text>)}</TextListItem>
+                    </TextList>
+                    </TextContent>
+                </GridItem>
+                <GridItem span={6} rowSpan={12}>
+                    <ByteVaultCodeEditor value={fragment.value} language={fragment.language} isReadOnly={true}/>
+                </GridItem>
+            </Grid>
+        </Modal>
+    );
+      
 
     const deleteFilters = (type, id) => {
     console.log("deleteFilters type: ", type);
     console.log("deleteFilters id: ", id);
     setFilters({});
     };
+
+    const handlePerPageSelect = (_evt, perPage) => {
+        setPage(1);
+        setPerPage(perPage);
+    }
+
+    const handlePageSelect = (_evt, page) => {
+        setPage(page);
+    }
 
     return (
         <div id="main-content-card-view-default-nav" breadcrumb={null}>
@@ -277,6 +332,25 @@ export function CodeFragmentsSection() {
                         <DrawerContentBody hasPadding>{drawerContent}</DrawerContentBody>
                     </DrawerContent>
                 </Drawer>
+            </PageSection>
+            <PageSection isFilled padding={{ default: 'noPadding' }}>
+                {aboutFragmentModalContent}
+                    <FragmentModal 
+                        isOpen={isCreateFragmentModalOpen} 
+                        setIsOpen={setIsCreateFragmentModalOpen} 
+                        tags={tagsData}
+                        programmingLanguages={programmingLanguagesData}
+                    />
+            </PageSection>
+            <PageSection isFilled={false} sticky="bottom" padding={{ default: 'noPadding' }} variant="light">
+                <Pagination
+                    itemCount={fragmentsData?.length}
+                    page={page}
+                    perPage={perPage}
+                    onPerPageSelect={handlePerPageSelect}
+                    onSetPage={handlePageSelect}
+                    variant="bottom"
+                />
             </PageSection>
         </div>
     );
