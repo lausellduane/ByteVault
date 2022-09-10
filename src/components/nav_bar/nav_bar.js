@@ -5,8 +5,7 @@ import {
   NavList,
   Page,
   PageHeader,
-  PageSidebar,
-  SkipToContent
+  PageSidebar
 } from '@patternfly/react-core';
 import '@patternfly/react-core/dist/styles/base.css'
 // make sure you've installed @patternfly/patternfly
@@ -79,16 +78,13 @@ export default class PageLayoutDefaultNav extends Component {
     );
     const Sidebar = <PageSidebar nav={PageNav} theme="dark" />;
     const pageId = 'main-content-page-layout-default-nav';
-    const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>;
-
+    
     return (
       <HashRouter>
         <Page
             header={Header}
             sidebar={Sidebar}
             isManagedSidebar
-            skipToContent={PageSkipToContent}
-            // breadcrumb={PageBreadcrumb}
             mainContainerId={pageId}
           >
             <Switch>
