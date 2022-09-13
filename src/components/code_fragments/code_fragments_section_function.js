@@ -1,11 +1,16 @@
 import { useState } from "react";
 import {
+    Alert,
+    AlertGroup,
+    AlertActionCloseButton,
+    AlertActionLink,
     Button,
     Card,
     CardActions,
     CardHeader,
     CardBody,
     CardTitle,
+    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Divider,
     Drawer,
     DrawerContent,
@@ -45,6 +50,7 @@ import { FetchFragments, FetchProgrammingLanguages, FetchTags } from "../../api/
 import { ByteVaultCodeEditor } from '../utils/code_editor';
 import { FragmentModal } from './create_fragment';
 import { useFragmentDeleteMutation } from "../../api/useFragmentsDeleteEndpoints";
+import { ApiAlerts } from "./api_alerts";
 
 export function CodeFragmentsSection() {
     const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
@@ -65,34 +71,32 @@ export function CodeFragmentsSection() {
     const [fetchFragmentsError, setFetchFragmentsError] = useState(null);
     const [fetchProgrammingLanguagesError, setFetchProgrammingLanguagesError] = useState('');
     const [fragmentsIdsObj, setFragmentsIdsObj] = useState({});
-    const { useDeleteFragment } = useFragmentDeleteMutation();
+
+    const { 
+        useDeleteFragment, 
+        useDeleteFragment: { 
+            isLoading: useDeleteFragmentIsLoading,
+            isError: useDeleteFragmentIsError,
+            isSuccess: useDeleteFragmentIsSuccess
+        } 
+    } = useFragmentDeleteMutation();
     const queryClient = useQueryClient()
-
-
-    // console.log("useDeleteFragment isLoading: ", useDeleteFragment.isLoading);
-    // console.log("useDeleteFragment isError: ", useDeleteFragment.isError);
-    // console.log("useDeleteFragment isSuccess: ", useDeleteFragment.isSuccess);
-    // console.log("useDeleteFragment data: ", useDeleteFragment.data);
 
     // Queries
 
     const handleFragmentIDs = (value) => {
         const idsArray = value?.map(item => item._id);
-        const idsObj = idsArray.reduce((acc, current) => (acc[current] = false, acc), {});
+        const idsObj = idsArray?.reduce((acc, current) => (acc[current] = false, acc), {});
         setFragmentsIdsObj(idsObj);
     }
 
     const { 
         isLoading: fragmentsDataIsLoading, 
-        isError: fragmentsDataIsError, 
+        isError: fragmentsDataIsError,
+        isSuccess: fragmentsDataIsSuccess,
         data: { data: fragmentsData } = [], 
         error: fragmentsDataError 
     } = FetchFragments(setFragments, handleFragmentIDs, setFetchFragmentsError);
-
-    // console.log('fragmentsDataIsLoading: ', fragmentsDataIsLoading);
-    // console.log('fragmentsDataIsError: ', fragmentsDataIsError);
-    // console.log('fragmentsData: ', fragmentsData);
-    // console.log('fragmentsDataError: ', fragmentsDataError);
 
     const {
         isLoading: programmingLanguagesDataIsLoading, 
@@ -101,22 +105,13 @@ export function CodeFragmentsSection() {
         error: programmingLanguagesDataError 
     } = FetchProgrammingLanguages();
 
-    // console.log('programmingLanguagesDataIsLoading: ', programmingLanguagesDataIsLoading);
-    // console.log('programmingLanguagesDataIsError: ', programmingLanguagesDataIsError);
-    // console.log('programmingLanguagesData: ', programmingLanguagesData);
-    // console.log('programmingLanguagesDataError: ', programmingLanguagesDataError);
-
     const {
         isLoading: tagsDataIsLoading, 
         isError: tagsDataIsError, 
         data: { data: tagsData } = [], 
-        error: tagsDataError 
+        error: tagsDataError,
+        isSuccess: tagsDataIsSuccess
     } = FetchTags();
-
-    // console.log('tagsDataIsLoading: ', tagsDataIsLoading);
-    // console.log('tagsDataIsError: ', tagsDataIsError);
-    // console.log('tagsData: ', tagsData);
-    // console.log('tagsDataError: ', tagsDataError);
     
     const handleCardKebabDropdown = (flag, event, elementID) => {
         event.preventDefault();
@@ -132,8 +127,6 @@ export function CodeFragmentsSection() {
     };
 
     const handleFragmentCardOnClick = (e, fragment) => {
-        // console.log("handleFragmentCardOnClick e: ", e);
-        // console.log("handleFragmentCardOnClick fragment: ", fragment);
         e.preventDefault();
         e.stopPropagation();
         if (e.currentTarget.id === activeCard) {
@@ -285,7 +278,13 @@ export function CodeFragmentsSection() {
                         <TextListItem component="dt">Notes</TextListItem>
                         <TextListItem component="dd">{fragment.notes}</TextListItem>
                         <TextListItem component="dt">Tags</TextListItem>
-                        <TextListItem component="dd">{fragment && fragment.tags && fragment.tags.length > 0 && fragment.tags.map(item => <Text key={item.id}>{item.label}</Text>)}</TextListItem>
+                        <TextListItem component="dd">
+                            {
+                                fragment?.tags?.map(item => 
+                                    <Text key={item.id}>{item.label}</Text>
+                                )
+                            }
+                        </TextListItem>
                     </TextList>
                     </TextContent>
                 </GridItem>
@@ -312,8 +311,29 @@ export function CodeFragmentsSection() {
         setPage(page);
     }
 
+    const apiErrors = { 
+        fragmentsDataIsError, 
+        fragmentsDataError, 
+        tagsDataIsError, 
+        tagsDataError,
+        programmingLanguagesDataIsError, 
+        programmingLanguagesDataError
+    };
+
+    const deleteFragmentApi = {
+        useDeleteFragmentIsSuccess,
+        useDeleteFragmentIsError,
+        useDeleteFragmentIsLoading
+    }
+
     return (
         <div id="main-content-card-view-default-nav" breadcrumb={null}>
+            {
+                (fragmentsDataIsError || programmingLanguagesDataIsError || tagsDataIsError) && 
+                <PageSection variant={PageSectionVariants.light}>
+                    <ApiAlerts apiErrors={apiErrors} deleteFragmentApi={deleteFragmentApi}/>
+                </PageSection>
+            }
             <PageSection variant={PageSectionVariants.light}>
                 <TextContent>
                     <Text component="h1">Code Fragments</Text>

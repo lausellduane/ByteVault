@@ -17,10 +17,6 @@ export const FragmentModal = (props) => {
   const [tags, setTags] = React.useState([]);
   const { useCreateFragment } = useFragmentPostMutation();
 
-  console.log("useCreateFragment isLoading: ", useCreateFragment.isLoading)
-  console.log("useCreateFragment isError: ", useCreateFragment.isError)
-  console.log("useCreateFragment isSuccess: ", useCreateFragment.isSuccess)
-
   const handleTitleInputChange = value => {
     setTitle(value);
   };
