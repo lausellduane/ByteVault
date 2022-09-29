@@ -35,7 +35,7 @@ export class TypeaheadSelectInput extends React.Component {
             formSelected: existing[0],
             isOpen: this.state.resetOnSelect ? false : this.state.isOpen
           });
-          props.handleLaguageInputChange(existing[0]);
+          props.handleLanguageInputChange(existing[0]);
         } 
         else {
           this.setState({
@@ -43,7 +43,7 @@ export class TypeaheadSelectInput extends React.Component {
             formSelected: {"id": 0, "label": selection},
             isOpen: this.state.resetOnSelect ? false : this.state.isOpen
           });
-          props.handleLaguageInputChange({"id": 0, "label": selection});
+          props.handleLanguageInputChange({"id": 0, "label": selection});
         }
       }
     };
@@ -69,7 +69,7 @@ export class TypeaheadSelectInput extends React.Component {
       selected,
       hasOnCreateOption,
     } = this.state;
-    const { options, fieldId, ariaLabel, placeholderText } = this.props;
+    const { options, fieldId, ariaLabel, placeholderText, validated } = this.props;
     const titleId = `typeahead-select-id-1-${fieldId}`;
 
     return (
@@ -90,6 +90,7 @@ export class TypeaheadSelectInput extends React.Component {
           placeholderText={placeholderText}
           isCreatable={true}
           onCreateOption={(hasOnCreateOption && this.onCreateOption) || undefined}
+          validated={validated}
         >
           {options.map((option, index) => (
             <SelectOption
