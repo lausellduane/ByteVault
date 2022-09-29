@@ -39,7 +39,6 @@ export const ApiAlerts = (props) => {
     const { apiErrors: { fragmentsDataIsError, fragmentsDataError, tagsDataIsError, 
         tagsDataError, programmingLanguagesDataIsError, programmingLanguagesDataError },
         deleteFragmentApi: { useDeleteFragmentIsSuccess } } = props;
-    console.log("useDeleteFragmentIsSuccess: ", useDeleteFragmentIsSuccess);
     return (
         <div class="pf-l-grid pf-m-gutter">
             <AlertGroup>

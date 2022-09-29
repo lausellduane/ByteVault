@@ -162,14 +162,7 @@ export function CodeFragmentsSection() {
     const onDeleteFragment = (e, elementID) => {
         e.preventDefault();
         e.stopPropagation();
-        useDeleteFragment.mutate({"id": elementID}, {
-            onSuccess: res => {
-                console.log('useDeleteFragment res: ', res);
-            },
-            onError: (error) => {
-                console.log('useDeleteFragment error: ', error);
-            }
-        });
+        useDeleteFragment.mutate({"id": elementID});
         
         setFragment({});
         setIsActionModalOpen(false);
@@ -220,6 +213,7 @@ export function CodeFragmentsSection() {
                 <div key={element._id} id={element._id}>
                     <Card
                         isHoverable
+                        isSelectable
                         key={`card-${element._id}`}
                         id={`card-view-${element._id}`}
                         onClick={(event) => handleFragmentCardOnClick(event, element)}
@@ -297,8 +291,6 @@ export function CodeFragmentsSection() {
       
 
     const deleteFilters = (type, id) => {
-    console.log("deleteFilters type: ", type);
-    console.log("deleteFilters id: ", id);
     setFilters({});
     };
 
